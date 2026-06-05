@@ -4,7 +4,7 @@ import { createReview } from "../services/reviewService";
 
 const router = Router();
 
-router.post("/reviews", (req: Request, res: Response) => {
+router.post("/reviews", async (req: Request, res: Response) => {
     const { prUrl, ticketText } = req.body;
 
     if (!prUrl) {
@@ -15,7 +15,7 @@ router.post("/reviews", (req: Request, res: Response) => {
     }
 
     try {
-      const response: ReviewResponse = createReview({ prUrl, ticketText });
+      const response = await createReview({ prUrl, ticketText });
       res.json(response);
     } catch (error) {
       res.status(400).json({

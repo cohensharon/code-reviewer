@@ -1,13 +1,16 @@
 import { ReviewResponse } from "../types/reviews";
 import { parseGithubPrUrl } from "../utils/parseGitHubUrl";
+import { getPullRequest } from "./githubService";
 
 type CreateReviewInput = {
     prUrl: string;
     ticketText?: string;
 };
 
-export function createReview(input: CreateReviewInput): ReviewResponse {
+export async function createReview(input: CreateReviewInput): Promise<ReviewResponse> {
     const parsedPr = parseGithubPrUrl(input.prUrl);
+
+    const pullRequest = await getPullRequest(parsedPr);
 
     return {
         reviewId: "placeholder-review-id",
@@ -16,7 +19,7 @@ export function createReview(input: CreateReviewInput): ReviewResponse {
             prUrl: input.prUrl,
             ticketText: input.ticketText ?? null,
         },
-        parsedPr,
+        pullRequest,
         findings: [],
         summary: null,
     };

@@ -18,7 +18,12 @@ export type ReviewResponse = {
         ticketText: string | null,
 
     };
-    parsedPr: ParsedGithubPrUrl;
+    pullRequest: {
+        title: string;
+        author: string;
+        branch: string;
+        changedFilesCount: number;
+      };
     findings: ReviewFinding[];
     summary: string | null;
 }
