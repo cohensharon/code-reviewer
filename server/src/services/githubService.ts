@@ -1,5 +1,8 @@
 
-type GetPullRequestInput = {
+export class GitHubNotFoundError extends Error {}
+export class GitHubUpstreamError extends Error {}
+
+export type GetPullRequestInput = {
     owner: string;
     repo: string;
     pullNumber: number;
@@ -34,8 +37,11 @@ export async function getPullRequest(
         { headers: githubHeaders() }
     );
 
+    if (response.status === 404) {
+        throw new GitHubNotFoundError(`PR not found: ${owner}/${repo}#${pullNumber}`);
+    }
     if (!response.ok) {
-        throw new Error(`Github PR not found or unavailable: ${owner}/${repo}#${pullNumber}`);
+        throw new GitHubUpstreamError(`GitHub error ${response.status}: ${owner}/${repo}#${pullNumber}`);
     }
 
     const data = await response.json();
@@ -46,5 +52,33 @@ export async function getPullRequest(
         branch: data.head.ref,
         changedFilesCount: data.changed_files,
     };
+}
+
+export async function getPullRequestDiff(
+    input: GetPullRequestInput
+): Promise<string> {
+    const { owner, repo, pullNumber } = input;
+
+    const headers: HeadersInit = {
+        ...githubHeaders(),
+        Accept: "application/vnd.github.diff",
+    };
+
+    const response = await fetch(
+        `https://api.github.com/repos/${owner}/${repo}/pulls/${pullNumber}`,
+        { headers }
+    );
+
+    if (response.status === 404) {
+        throw new GitHubNotFoundError(`PR not found: ${owner}/${repo}#${pullNumber}`);
+    }
+    if (response.status === 403 || response.status >= 500) {
+        throw new GitHubUpstreamError(`GitHub error ${response.status}: ${owner}/${repo}#${pullNumber}`);
+    }
+    if (!response.ok) {
+        throw new GitHubUpstreamError(`GitHub error ${response.status}: ${owner}/${repo}#${pullNumber}`);
+    }
+
+    return response.text();
 }
 

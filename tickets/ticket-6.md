@@ -97,6 +97,20 @@ npm install openai
 - [ ] `LlmUpstreamError` and `LlmParseError` are exported
 - [ ] `v1ReviewJsonSchema` is exported and matches the `LlmReviewOutput` shape
 
+## Unit Tests
+
+New test file: `server/src/llm/parseReviewOutput.test.ts`
+
+- `parseReviewOutput()` returns `LlmReviewOutput` for a valid JSON string
+- `parseReviewOutput()` throws `LlmParseError` for malformed JSON
+- `parseReviewOutput()` throws `LlmParseError` when required fields are missing
+- `parseReviewOutput()` throws `LlmParseError` when `severity` is not a valid enum value
+- `parseReviewOutput()` throws `LlmParseError` when `confidence` is not a valid enum value
+
+New test file: `server/src/llm/llmClient.test.ts`
+
+- `completeStructured()` throws `LlmUpstreamError` when OpenAI returns a non-200 response (mock fetch)
+
 ## Files Touched
 
 ```

@@ -113,6 +113,23 @@ Delete the file. All callers now go through `reviewOrchestrator`.
 - [ ] `reviewService.ts` is deleted
 - [ ] Terminal shows a structured log line per review (reviewId, prUrl, promptVersion, wasTruncated, finding count, latency)
 
+## Unit Tests
+
+New test file: `server/src/services/reviewOrchestrator.test.ts`
+
+- `orchestrateReview()` defaults `reviewStrategy` to `"v1"` when omitted
+- `orchestrateReview()` throws `NotImplementedError` when `reviewStrategy` is `"v2"`
+
+New test file: `server/src/routes/reviewRoutes.test.ts`
+
+- Missing `prUrl` returns HTTP 400
+- Invalid `prUrl` (not a GitHub PR URL) returns HTTP 400
+- `GitHubNotFoundError` maps to HTTP 400
+- `GitHubUpstreamError` maps to HTTP 502
+- `LlmUpstreamError` maps to HTTP 502
+- `LlmParseError` maps to HTTP 400
+- `NotImplementedError` (`reviewStrategy: "v2"`) maps to HTTP 501
+
 ## Files Touched
 
 ```

@@ -81,11 +81,29 @@ PORT=3000
 - New review strategies get their own directory; do not fold V2 into V1's `createReview` without a strategy dispatch layer.
 - Prompt templates are versioned (`v1-prompt-v1.ts`) so Weave experiments can reference prompt versions.
 
-## Testing Strategy (Planned)
+## Testing Strategy
 
-- Unit tests: URL parsing, response schema validation, prompt assembly.
-- Integration tests: GitHub fetch with fixtures (no live API in CI).
-- Evaluation: synthetic dataset runs via Weave, not traditional unit tests.
+**Framework:** [Vitest](https://vitest.dev/) — run with `npm test` (single run) or `npm run test:watch` (watch mode).
+
+**Test files** live alongside source in `src/`, named `*.test.ts`.
+
+### Scope per ticket
+
+Unit tests are a required part of every ticket's definition of done. Each ticket's acceptance criteria include test coverage for the logic introduced in that ticket.
+
+| Layer | What to test | Approach |
+|-------|-------------|----------|
+| Utils / pure functions | URL parsing, truncation, prompt assembly | Plain Vitest unit tests — no mocks needed |
+| GitHub service | `getPullRequest`, `getPullRequestDiff` error paths | Mock `fetch` with `vi.stubGlobal` |
+| LLM client | `completeStructured` error paths | Mock `fetch` or the OpenAI SDK |
+| Output parser | Valid + invalid JSON, schema mismatches | Plain unit tests with fixture strings |
+| Routes / orchestrator | HTTP status code mapping | Supertest or inline Express test client |
+
+### What not to test
+
+- Live GitHub API calls — use mocked `fetch` in all CI-safe tests.
+- Live LLM calls — integration tests that require real keys are run locally only, never in CI.
+- Evaluation quality — that is handled by W&B Weave runs, not Vitest.
 
 ## Current State
 

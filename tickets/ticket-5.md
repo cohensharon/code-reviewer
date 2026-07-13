@@ -83,6 +83,17 @@ Unified diff:
 - [ ] `PROMPT_VERSION` is exported as a string constant
 - [ ] No logic outside of string assembly — no I/O, no imports of LLM or GitHub modules
 
+## Unit Tests
+
+New test file: `server/src/prompts/v1/reviewPrompt.test.ts`
+
+- `buildV1ReviewPrompt()` includes `version === "v1.0"` in result
+- User prompt contains ticket text when provided
+- User prompt contains `"(not provided — review diff only)"` when `ticketText` is null
+- User prompt contains `"(not provided — review diff only)"` when `ticketText` is undefined
+- User prompt includes PR title, author, branch, and changed files count
+- User prompt includes the diff string
+
 ## Files Touched
 
 ```
