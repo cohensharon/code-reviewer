@@ -1,6 +1,6 @@
 # Ticket 5 — LLM Output Types & V1 Prompt Template
 
-**Status:** To do  
+**Status:** Done
 **Builds on:** Ticket 4
 
 ## Summary
@@ -47,7 +47,7 @@ type BuiltPrompt = {
   version: string;
 };
 
-export function buildV1ReviewPrompt(input: BuildPromptInput): BuiltPrompt
+export function buildV1ReviewPrompt(input: BuildPromptInput): BuiltPrompt;
 ```
 
 #### System prompt instructs the model to:

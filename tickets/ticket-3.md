@@ -1,6 +1,6 @@
 # Ticket 3 — GitHub Diff Fetch
 
-**Status:** To do  
+**Status:** Done  
 **Builds on:** Ticket 2
 
 ## Summary
@@ -14,7 +14,9 @@ Add `getPullRequestDiff()` to `githubService.ts` so the server can retrieve the 
 Added to `server/src/services/githubService.ts`.
 
 ```typescript
-export async function getPullRequestDiff(input: GetPullRequestInput): Promise<string>
+export async function getPullRequestDiff(
+  input: GetPullRequestInput,
+): Promise<string>;
 ```
 
 - Calls `GET /repos/{owner}/{repo}/pulls/{pullNumber}` with `Accept: application/vnd.github.diff`.

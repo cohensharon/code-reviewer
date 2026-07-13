@@ -1,6 +1,6 @@
 # Ticket 6 — LLM Client & Output Parser
 
-**Status:** To do  
+**Status:** Done
 **Builds on:** Ticket 5
 
 ## Summary
@@ -17,7 +17,7 @@ Thin provider abstraction. V1 calls OpenAI Chat Completions with structured outp
 type CompletionRequest = {
   systemPrompt: string;
   userPrompt: string;
-  responseSchema: object;  // JSON Schema object for structured output
+  responseSchema: object; // JSON Schema object for structured output
 };
 
 type CompletionResult = {
@@ -28,8 +28,8 @@ type CompletionResult = {
 
 export async function completeStructured(
   request: CompletionRequest,
-  promptVersion: string
-): Promise<CompletionResult>
+  promptVersion: string,
+): Promise<CompletionResult>;
 ```
 
 - Reads `OPENAI_API_KEY` from env (throws a clear startup error if absent).
@@ -51,7 +51,7 @@ Parses and validates the raw JSON string from the LLM against the `LlmReviewOutp
 ```typescript
 import { LlmReviewOutput } from "../types/llmReview";
 
-export function parseReviewOutput(rawText: string): LlmReviewOutput
+export function parseReviewOutput(rawText: string): LlmReviewOutput;
 ```
 
 1. `JSON.parse(rawText)` — catch parse errors.
@@ -70,10 +70,10 @@ Export a `v1ReviewJsonSchema` constant from `parseReviewOutput.ts` (or a shared 
 
 ### Env vars introduced
 
-| Var | Required | Default | Purpose |
-|-----|----------|---------|---------|
-| `OPENAI_API_KEY` | Yes | — | OpenAI authentication |
-| `OPENAI_MODEL` | No | `gpt-4o-mini` | Model override |
+| Var              | Required | Default       | Purpose               |
+| ---------------- | -------- | ------------- | --------------------- |
+| `OPENAI_API_KEY` | Yes      | —             | OpenAI authentication |
+| `OPENAI_MODEL`   | No       | `gpt-4o-mini` | Model override        |
 
 Add to `.env.example`:
 

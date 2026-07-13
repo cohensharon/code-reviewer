@@ -1,6 +1,6 @@
 # Ticket 2 — Tech Debt Cleanup & GitHub Token Support
 
-**Status:** To do  
+**Status:** Done
 **Builds on:** Ticket 1
 
 ## Summary
@@ -11,12 +11,12 @@ Clear the known tech debt from Ticket 1 and add `GITHUB_TOKEN` auth to the GitHu
 
 ### Changes
 
-| File | Change |
-|------|--------|
+| File                                   | Change                                                                                                                                                                 |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `server/src/services/githubService.ts` | Remove `console.log("!!!!!!!!!!", ...)` debug line; extract `githubHeaders()` helper; read `GITHUB_TOKEN` from env and include `Authorization: Bearer` header when set |
-| `server/src/utils/parseGitHubUrl.ts` | Fix typo in error message: `"URL mus tbe from github.com"` → `"URL must be from github.com"` |
-| `server/src/services/githubService.ts` | Remove commented-out `PlaceholderPullRequest` type block |
-| `server/src/services/reviewService.ts` | Replace hardcoded `"placeholder-review-id"` with `crypto.randomUUID()` |
+| `server/src/utils/parseGitHubUrl.ts`   | Fix typo in error message: `"URL mus tbe from github.com"` → `"URL must be from github.com"`                                                                           |
+| `server/src/services/githubService.ts` | Remove commented-out `PlaceholderPullRequest` type block                                                                                                               |
+| `server/src/services/reviewService.ts` | Replace hardcoded `"placeholder-review-id"` with `crypto.randomUUID()`                                                                                                 |
 
 ### `githubHeaders()` helper (architecture spec)
 
@@ -37,9 +37,9 @@ function githubHeaders(): HeadersInit {
 
 ### Env vars introduced
 
-| Var | Required | Purpose |
-|-----|----------|---------|
-| `GITHUB_TOKEN` | No | Raises GitHub rate limit from 60 to 5000 req/hr |
+| Var            | Required | Purpose                                         |
+| -------------- | -------- | ----------------------------------------------- |
+| `GITHUB_TOKEN` | No       | Raises GitHub rate limit from 60 to 5000 req/hr |
 
 Add to root `.env.example`:
 

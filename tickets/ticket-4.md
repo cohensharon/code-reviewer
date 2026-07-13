@@ -1,6 +1,6 @@
 # Ticket 4 — Diff Truncation
 
-**Status:** To do  
+**Status:** Done
 **Builds on:** Ticket 3
 
 ## Summary
@@ -18,7 +18,7 @@ type TruncateDiffResult = {
   originalLength: number;
 };
 
-export function truncateDiff(rawDiff: string): TruncateDiffResult
+export function truncateDiff(rawDiff: string): TruncateDiffResult;
 ```
 
 #### Algorithm (from architecture spec)
@@ -36,9 +36,9 @@ The `wasTruncated` flag and `originalLength` are for internal logging only — n
 
 ### Env vars introduced
 
-| Var | Required | Default | Purpose |
-|-----|----------|---------|---------|
-| `MAX_DIFF_CHARS` | No | `80_000` | Character budget for diff passed to LLM |
+| Var              | Required | Default  | Purpose                                 |
+| ---------------- | -------- | -------- | --------------------------------------- |
+| `MAX_DIFF_CHARS` | No       | `80_000` | Character budget for diff passed to LLM |
 
 Add to `.env.example`:
 
