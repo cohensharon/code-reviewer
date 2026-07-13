@@ -1,4 +1,4 @@
-- run server: "npm run dev"
+- run server (from server directory): "npm run dev"
 
 - curl command for running review:
 

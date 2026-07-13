@@ -1,13 +1,4 @@
 
-// export type PlaceholderPullRequest = {
-//     owner: string;
-//     repo: string;
-//     pullNumber: number;
-//     title: string;
-//     author: string;
-//     state: "open" | "closed";
-// };
-
 type GetPullRequestInput = {
     owner: string;
     repo: string;
@@ -21,19 +12,26 @@ export type PullRequestMetadata = {
     changedFilesCount: number;
 };
 
+function githubHeaders(): HeadersInit {
+    const headers: HeadersInit = {
+        Accept: "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+    };
+
+    if (process.env.GITHUB_TOKEN) {
+        headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+    }
+    return headers;
+}
+
 export async function getPullRequest(
     input: GetPullRequestInput
 ): Promise<PullRequestMetadata> {
     const { owner, repo, pullNumber } = input;
-    console.log("!!!!!!!!!!", owner, repo, pullNumber);
 
     const response = await fetch(
         `https://api.github.com/repos/${owner}/${repo}/pulls/${pullNumber}`,
-        {
-            headers: {
-                Accept: "application/vnd.github+json",
-            },
-        }
+        { headers: githubHeaders() }
     );
 
     if (!response.ok) {

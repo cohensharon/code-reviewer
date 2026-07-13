@@ -15,7 +15,7 @@ export function parseGithubPrUrl(prUrl: string): ParsedGithubPrUrl {
     }
 
     if (url.hostname !== "github.com") {
-        throw new Error("URL mus tbe from github.com");
+        throw new Error("URL must be from github.com");
     }
 
     const parts = url.pathname.split("/").filter(Boolean);

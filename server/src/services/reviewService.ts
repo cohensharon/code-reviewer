@@ -13,7 +13,7 @@ export async function createReview(input: CreateReviewInput): Promise<ReviewResp
     const pullRequest = await getPullRequest(parsedPr);
 
     return {
-        reviewId: "placeholder-review-id",
+        reviewId: crypto.randomUUID(),
         status: "received",
         input: {
             prUrl: input.prUrl,
