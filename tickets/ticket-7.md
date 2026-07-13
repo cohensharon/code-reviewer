@@ -1,6 +1,6 @@
 # Ticket 7 — V1 Orchestrator & Full Pipeline Wire-Up
 
-**Status:** To do  
+**Status:** Done  
 **Builds on:** Ticket 6
 
 ## Summary
@@ -14,10 +14,13 @@ Wire every V1 building block into a live, end-to-end review pipeline. After this
 V1 pipeline orchestration. Runs all steps in order:
 
 ```typescript
-export async function runV1Review(input: CreateReviewInput): Promise<ReviewResponse>
+export async function runV1Review(
+  input: CreateReviewInput,
+): Promise<ReviewResponse>;
 ```
 
 Steps:
+
 1. `parseGithubPrUrl(input.prUrl)` → parsed PR coords.
 2. `Promise.all([getPullRequest(...), getPullRequestDiff(...)])` — parallel fetch.
 3. `truncateDiff(rawDiff)` → `{ diff, wasTruncated, originalLength }`.
@@ -39,7 +42,9 @@ export type CreateReviewInput = {
   reviewStrategy?: "v1" | "v2";
 };
 
-export async function orchestrateReview(input: CreateReviewInput): Promise<ReviewResponse>
+export async function orchestrateReview(
+  input: CreateReviewInput,
+): Promise<ReviewResponse>;
 ```
 
 - Defaults `reviewStrategy` to `"v1"` when absent.
@@ -53,15 +58,15 @@ export async function orchestrateReview(input: CreateReviewInput): Promise<Revie
 - Call `orchestrateReview({ prUrl, ticketText, reviewStrategy })` instead of `createReview()`.
 - Expand error mapping:
 
-| Error type | HTTP |
-|-----------|------|
-| URL parse error / missing `prUrl` | 400 |
-| `GitHubNotFoundError` | 400 |
-| `GitHubUpstreamError` | 502 |
-| `LlmUpstreamError` | 502 |
-| `LlmParseError` | 400 |
-| `NotImplementedError` (v2 stub) | 501 |
-| Unhandled exception | 500 |
+| Error type                        | HTTP |
+| --------------------------------- | ---- |
+| URL parse error / missing `prUrl` | 400  |
+| `GitHubNotFoundError`             | 400  |
+| `GitHubUpstreamError`             | 502  |
+| `LlmUpstreamError`                | 502  |
+| `LlmParseError`                   | 400  |
+| `NotImplementedError` (v2 stub)   | 501  |
+| Unhandled exception               | 500  |
 
 Remove the import of `createReview` from the route.
 
@@ -72,6 +77,7 @@ Delete the file. All callers now go through `reviewOrchestrator`.
 ## API behavior after this ticket
 
 **Request:**
+
 ```json
 {
   "prUrl": "https://github.com/org/repo/pull/123",
@@ -81,12 +87,18 @@ Delete the file. All callers now go through `reviewOrchestrator`.
 ```
 
 **Response (`200`):**
+
 ```json
 {
   "reviewId": "<uuid>",
   "status": "completed",
   "input": { "prUrl": "...", "ticketText": "..." },
-  "pullRequest": { "title": "...", "author": "...", "branch": "...", "changedFilesCount": 3 },
+  "pullRequest": {
+    "title": "...",
+    "author": "...",
+    "branch": "...",
+    "changedFilesCount": 3
+  },
   "findings": [
     {
       "id": "<uuid>",

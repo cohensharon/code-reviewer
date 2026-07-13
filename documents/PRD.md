@@ -21,7 +21,7 @@ Human PR reviews often miss issues because reviewers lack ticket context, are ov
 - Enterprise auth or multi-tenant deployment
 - Full repo indexing or semantic code search
 - Model fine-tuning
-- Polished production UI (simple form + results is sufficient)
+- Product UI, auth, persistence, or shareable review URLs (see Epic 5)
 
 ---
 
@@ -77,7 +77,7 @@ Findings use the shared `ReviewResponse` / `ReviewFinding` types (see `server/sr
 - LangGraph or multi-step agent workflow
 - W&B Weave integration (Epic 4)
 - Synthetic dataset authoring (Epic 3) — consumed later, not built in V1
-- React/Next.js UI (can follow V1 API completion)
+- Web UI, auth, or review persistence (Epic 5)
 
 ---
 
@@ -150,6 +150,58 @@ Not part of V1 or V2 deliverables, but required to meet the project's evaluation
 
 ---
 
+## Productization
+
+**Maps to:** Epic 5 — Web App, Auth & Review History
+
+**Purpose:** Turn the review API into a usable product: a web frontend, lightweight email-code authentication, and persisted reviews so users can return to past results via stable URLs.
+
+Epic 5 is separate from the V1/V2 evaluation work (Epics 1–4). It can be built in parallel once the review API is stable, but is not required to compare review strategies.
+
+### Description
+
+A simple web app lets signed-in users submit PR URL + ticket text, pick a review strategy, and view structured findings. Reviews are stored in a database and scoped to the authenticated user. Each completed review has a stable URL (e.g. `/reviews/{reviewId}`) for revisiting or sharing within the app.
+
+Authentication uses **email code** (passwordless): user enters email → receives a one-time code → verifies code → receives a session. No passwords, OAuth, or enterprise SSO in this epic.
+
+### User Flow
+
+1. User visits the app and signs in with email + one-time code.
+2. User submits a new review (PR URL, ticket text, optional strategy).
+3. App shows a loading state while the backend runs the review pipeline.
+4. On completion, user sees findings and summary; review is persisted.
+5. User can open `/reviews/{reviewId}` later or browse a list of their past reviews.
+
+### Functional Requirements
+
+| ID | Requirement |
+|----|-------------|
+| P5-1 | Web frontend with form to submit PR URL, ticket text, and `reviewStrategy` (`v1` / `v2`). |
+| P5-2 | Results view rendering `summary`, `findings[]` (category, severity, confidence, title, description), and PR metadata. |
+| P5-3 | Email-code auth: request code, verify code, issue session (cookie or token). |
+| P5-4 | Persist completed reviews in a database; associate each review with the authenticated user. |
+| P5-5 | `GET /api/reviews/:reviewId` returns a stored review; only the owning user may access it. |
+| P5-6 | `GET /api/reviews` (or equivalent) lists the current user's past reviews (metadata + link to detail). |
+| P5-7 | Stable review detail URL in the frontend (e.g. `/reviews/{reviewId}`). |
+| P5-8 | Unauthenticated users cannot create or list reviews (read/write requires auth). |
+
+### Success Criteria
+
+- A signed-in user can submit a review and see results without curl/Bruno.
+- Returning to a review URL shows the same persisted result.
+- Review history lists prior runs for the signed-in user.
+- Auth flow completes with email code only (no password storage).
+
+### Out of Scope for Epic 5
+
+- OAuth / GitHub login / SSO
+- Multi-tenant orgs, teams, or role-based access
+- Automatic GitHub PR commenting
+- Billing, quotas, or usage metering
+- Polished design system or mobile-native apps
+
+---
+
 ## API Contract (Shared)
 
 Both versions consume and produce the same shapes.
@@ -175,11 +227,11 @@ Both versions consume and produce the same shapes.
 | Phase | Deliverable | Status |
 |-------|-------------|--------|
 | Ticket 1 | Server scaffold, types, GitHub metadata fetch, placeholder review endpoint | Done |
-| V1 | Diff fetch, LLM integration, prompt + structured output | Not started |
+| Tickets 2–7 | V1 baseline reviewer: diff fetch, truncation, LLM integration, prompt + structured output, full pipeline | Done |
 | V2 | LangGraph agent workflow, shared output schema | Not started |
 | Epic 3 | Synthetic PR dataset with labels | Not started |
 | Epic 4 | W&B Weave evaluation pipeline | Not started |
-| UI | Simple form + results page | Not started |
+| Epic 5 | Productization: web app, email-code auth, persisted review history | Not started |
 
 ---
 
@@ -192,3 +244,4 @@ Both versions consume and produce the same shapes.
 | LLM evaluation pipeline comparing review strategies | Epic 4: Weave runs across V1, V2, diff-only |
 | Synthetic PRs with known regressions | Epic 3: labeled dataset |
 | Node.js, LangGraph, W&B Weave, GitHub API | Node/Express + GitHub API (Ticket 1); LangGraph (V2); Weave (Epic 4) |
+| Usable web product with auth and review history | Epic 5: frontend + email-code auth + DB persistence |

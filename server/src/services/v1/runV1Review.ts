@@ -1,7 +1,5 @@
 import { randomUUID } from "crypto";
-import { parseGithubPrUrl } from "../../utils/parseGitHubUrl";
-import { getPullRequest, getPullRequestDiff } from "../githubService";
-import { truncateDiff } from "../../context/truncateDiff";
+import { prepareReviewContext } from "../../context/prepareReviewContext";
 import { buildV1ReviewPrompt } from "../../prompts/v1/reviewPrompt";
 import { completeStructured } from "../../llm/llmClient";
 import { parseReviewOutput, v1ReviewJsonSchema } from "../../llm/parseReviewOutput";
@@ -16,14 +14,9 @@ export async function runV1Review(input: RunV1ReviewInput): Promise<ReviewRespon
   const startMs = Date.now();
   const reviewId = randomUUID();
 
-  const parsedPr = parseGithubPrUrl(input.prUrl);
-
-  const [pullRequest, rawDiff] = await Promise.all([
-    getPullRequest(parsedPr),
-    getPullRequestDiff(parsedPr),
-  ]);
-
-  const { diff, wasTruncated } = truncateDiff(rawDiff);
+  const { pullRequest, diff, wasTruncated } = await prepareReviewContext({
+    prUrl: input.prUrl,
+  });
 
   const { systemPrompt, userPrompt, version } = buildV1ReviewPrompt({
     ticketText: input.ticketText,

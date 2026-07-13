@@ -1,7 +1,7 @@
 info:
-  name: Correct PR URL v1
+  name: Correct PR URL v1 (ticket not matching)
   type: http
-  seq: 1
+  seq: 3
 
 http:
   method: POST
@@ -11,7 +11,7 @@ http:
     data: |-
       {
 
-        "prUrl": "https://github.com/langchain-ai/langchain/pull/38765",
+        "prUrl": "https://github.com/openai/openai-python/pull/3496",
         "ticketText": "When processing Anthropic `signature_delta` streaming events, ensure that empty `thinking` blocks are preserved instead of being omitted. The streaming adapter should always include the required `thinking` field in the emitted chunks (using an empty/default value when necessary) so downstream consumers receive a consistent response schema and 400 errors are avoided.",
         "reviewStrategy": "v1"
       }

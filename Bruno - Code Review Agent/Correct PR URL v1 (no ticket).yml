@@ -11,8 +11,7 @@ http:
     data: |-
       {
 
-        "prUrl": "https://github.com/openai/openai-python/pull/3496",
-
+        "prUrl": "https://github.com/openai/openai-python/pull/3496"
       }
   auth: inherit
 

@@ -1,7 +1,7 @@
 info:
   name: Correct PR URL v2
   type: http
-  seq: 4
+  seq: 5
 
 http:
   method: POST
@@ -12,7 +12,7 @@ http:
       {
 
         "prUrl": "https://github.com/openai/openai-python/pull/3496",
-
+        "reviewStrategy": "v2"
       }
   auth: inherit
 
