@@ -1,4 +1,4 @@
-const DEFAULT_BUDGET = 80_000;
+const DEFAULT_BUDGET = 50_000;
 const TRUNCATION_MARKER = "\n[... diff truncated ...]\n";
 
 type TruncateDiffResult = {

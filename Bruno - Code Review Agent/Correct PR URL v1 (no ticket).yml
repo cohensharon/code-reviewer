@@ -1,0 +1,23 @@
+info:
+  name: Correct PR URL v1 (no ticket)
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://localhost:3000/api/reviews
+  body:
+    type: json
+    data: |-
+      {
+
+        "prUrl": "https://github.com/openai/openai-python/pull/3496",
+
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -23,7 +23,7 @@ export function truncateDiff(rawDiff: string): TruncateDiffResult;
 
 #### Algorithm (from architecture spec)
 
-1. Read budget from `process.env.MAX_DIFF_CHARS` (default `80_000`).
+1. Read budget from `process.env.MAX_DIFF_CHARS` (default `50_000`).
 2. If `rawDiff.length <= budget` → return unchanged, `wasTruncated: false`.
 3. If over budget:
    - Keep the first **70%** of the budget from the start.
@@ -38,7 +38,7 @@ The `wasTruncated` flag and `originalLength` are for internal logging only — n
 
 | Var              | Required | Default  | Purpose                                 |
 | ---------------- | -------- | -------- | --------------------------------------- |
-| `MAX_DIFF_CHARS` | No       | `80_000` | Character budget for diff passed to LLM |
+| `MAX_DIFF_CHARS` | No       | `50_000` | Character budget for diff passed to LLM |
 
 Add to `.env.example`:
 

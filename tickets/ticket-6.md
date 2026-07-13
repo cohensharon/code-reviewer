@@ -70,10 +70,10 @@ Export a `v1ReviewJsonSchema` constant from `parseReviewOutput.ts` (or a shared 
 
 ### Env vars introduced
 
-| Var              | Required | Default       | Purpose               |
-| ---------------- | -------- | ------------- | --------------------- |
-| `OPENAI_API_KEY` | Yes      | —             | OpenAI authentication |
-| `OPENAI_MODEL`   | No       | `gpt-4o-mini` | Model override        |
+| Var              | Required | Default        | Purpose               |
+| ---------------- | -------- | -------------- | --------------------- |
+| `OPENAI_API_KEY` | Yes      | —              | OpenAI authentication |
+| `OPENAI_MODEL`   | No       | `gpt-5.4-mini` | Model override        |
 
 Add to `.env.example`:
 

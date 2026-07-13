@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { truncateDiff } from "./truncateDiff";
 
 const TRUNCATION_MARKER = "\n[... diff truncated ...]\n";
-const DEFAULT_BUDGET = 80_000;
+const DEFAULT_BUDGET = 50_000;
 
 function makeDiff(length: number): string {
     return "x".repeat(length);
