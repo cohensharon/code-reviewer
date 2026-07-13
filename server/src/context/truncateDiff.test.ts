@@ -1,79 +1,123 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { truncateDiff } from "./truncateDiff";
 
-const MARKER = "\n[... diff truncated ...]\n";
+const TRUNCATION_MARKER = "\n[... diff truncated ...]\n";
 const DEFAULT_BUDGET = 80_000;
+
+function makeDiff(length: number): string {
+    return "x".repeat(length);
+}
 
 describe("truncateDiff", () => {
     describe("when diff is within budget", () => {
         it("returns the diff unchanged", () => {
-            const input = "a".repeat(1_000);
-            const result = truncateDiff(input);
-            expect(result.diff).toBe(input);
+            const diff = makeDiff(DEFAULT_BUDGET - 1);
+            const result = truncateDiff(diff);
+            expect(result.diff).toBe(diff);
         });
 
         it("sets wasTruncated to false", () => {
-            const result = truncateDiff("short diff");
+            const result = truncateDiff(makeDiff(DEFAULT_BUDGET - 1));
             expect(result.wasTruncated).toBe(false);
         });
 
-        it("sets originalLength to the input length", () => {
-            const input = "x".repeat(500);
-            const result = truncateDiff(input);
-            expect(result.originalLength).toBe(500);
+        it("sets wasTruncated to false when diff equals the budget exactly", () => {
+            const result = truncateDiff(makeDiff(DEFAULT_BUDGET));
+            expect(result.wasTruncated).toBe(false);
         });
 
-        it("passes through a diff exactly at the budget boundary", () => {
-            const input = "a".repeat(DEFAULT_BUDGET);
-            const result = truncateDiff(input);
-            expect(result.wasTruncated).toBe(false);
-            expect(result.diff).toBe(input);
+        it("returns the correct originalLength", () => {
+            const diff = makeDiff(1_000);
+            const result = truncateDiff(diff);
+            expect(result.originalLength).toBe(1_000);
         });
     });
 
-    describe("when diff exceeds budget", () => {
-        const input = "a".repeat(DEFAULT_BUDGET + 1_000);
+    describe("when diff exceeds the budget", () => {
+        const oversizedDiff = makeDiff(DEFAULT_BUDGET + 10_000);
 
         it("sets wasTruncated to true", () => {
-            expect(truncateDiff(input).wasTruncated).toBe(true);
+            const result = truncateDiff(oversizedDiff);
+            expect(result.wasTruncated).toBe(true);
         });
 
-        it("sets originalLength to the full input length", () => {
-            expect(truncateDiff(input).originalLength).toBe(input.length);
+        it("result length is within budget plus marker length", () => {
+            const result = truncateDiff(oversizedDiff);
+            expect(result.diff.length).toBeLessThanOrEqual(
+                DEFAULT_BUDGET + TRUNCATION_MARKER.length
+            );
         });
 
-        it("includes the truncation marker exactly once", () => {
-            const { diff } = truncateDiff(input);
-            const occurrences = diff.split(MARKER).length - 1;
+        it("contains the truncation marker exactly once", () => {
+            const result = truncateDiff(oversizedDiff);
+            const occurrences = result.diff.split(TRUNCATION_MARKER).length - 1;
             expect(occurrences).toBe(1);
         });
 
-        it("result length is within budget + marker length", () => {
-            const { diff } = truncateDiff(input);
-            expect(diff.length).toBeLessThanOrEqual(DEFAULT_BUDGET + MARKER.length);
+        it("preserves the head (first 70% of budget)", () => {
+            const headSize = Math.floor(DEFAULT_BUDGET * 0.7);
+            const result = truncateDiff(oversizedDiff);
+            expect(result.diff.startsWith(oversizedDiff.slice(0, headSize))).toBe(true);
+        });
+
+        it("preserves the tail (last 20% of budget)", () => {
+            const tailSize = Math.floor(DEFAULT_BUDGET * 0.2);
+            const result = truncateDiff(oversizedDiff);
+            expect(
+                result.diff.endsWith(oversizedDiff.slice(oversizedDiff.length - tailSize))
+            ).toBe(true);
+        });
+
+        it("records the original (pre-truncation) length in originalLength", () => {
+            const result = truncateDiff(oversizedDiff);
+            expect(result.originalLength).toBe(oversizedDiff.length);
         });
     });
 
     describe("MAX_DIFF_CHARS env override", () => {
+        const CUSTOM_BUDGET = 500;
+
         beforeEach(() => {
-            process.env.MAX_DIFF_CHARS = "1000";
+            process.env.MAX_DIFF_CHARS = String(CUSTOM_BUDGET);
         });
 
         afterEach(() => {
             delete process.env.MAX_DIFF_CHARS;
         });
 
-        it("respects a smaller budget from env", () => {
-            const input = "a".repeat(2_000);
-            const result = truncateDiff(input);
-            expect(result.wasTruncated).toBe(true);
-            expect(result.diff.length).toBeLessThanOrEqual(1_000 + MARKER.length);
+        it("does not truncate a diff within the custom budget", () => {
+            const diff = makeDiff(CUSTOM_BUDGET);
+            const result = truncateDiff(diff);
+            expect(result.wasTruncated).toBe(false);
+            expect(result.diff).toBe(diff);
         });
 
-        it("does not truncate when diff fits in the overridden budget", () => {
-            const input = "a".repeat(500);
-            const result = truncateDiff(input);
-            expect(result.wasTruncated).toBe(false);
+        it("truncates a diff that exceeds the custom budget", () => {
+            const result = truncateDiff(makeDiff(CUSTOM_BUDGET + 100));
+            expect(result.wasTruncated).toBe(true);
+            expect(result.diff.length).toBeLessThanOrEqual(
+                CUSTOM_BUDGET + TRUNCATION_MARKER.length
+            );
+        });
+
+        it("respects the custom budget for head and tail sizing", () => {
+            const diff = makeDiff(CUSTOM_BUDGET + 100);
+            const headSize = Math.floor(CUSTOM_BUDGET * 0.7);
+            const tailSize = Math.floor(CUSTOM_BUDGET * 0.2);
+            const result = truncateDiff(diff);
+
+            expect(result.diff.startsWith(diff.slice(0, headSize))).toBe(true);
+            expect(result.diff.endsWith(diff.slice(diff.length - tailSize))).toBe(true);
+        });
+    });
+
+    describe("originalLength", () => {
+        it("always reflects the raw input length regardless of truncation", () => {
+            const lengths = [0, 1, 1_000, DEFAULT_BUDGET, DEFAULT_BUDGET + 50_000];
+            for (const len of lengths) {
+                const result = truncateDiff(makeDiff(len));
+                expect(result.originalLength).toBe(len);
+            }
         });
     });
 });
